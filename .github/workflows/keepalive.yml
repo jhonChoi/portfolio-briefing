@@ -1,0 +1,26 @@
+name: Keepalive
+
+# GitHub는 60일간 커밋/이슈/PR 활동이 없으면 예약 워크플로를 자동 비활성화합니다.
+# (예약 실행 성공은 '활동'으로 치지 않습니다)
+# 매주 빈 커밋을 남겨 타이머를 리셋합니다.
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"      # 매주 일요일 UTC 03:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          git config user.name  "briefing-bot"
+          git config user.email "briefing-bot@users.noreply.github.com"
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .keepalive
+          git add .keepalive
+          git commit -m "keepalive" || exit 0
+          git push
